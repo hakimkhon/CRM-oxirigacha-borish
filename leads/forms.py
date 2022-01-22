@@ -12,7 +12,7 @@ class LeadModelForm(forms.ModelForm):
             "ismi",
             "familiyasi",
             "yoshi",
-            "agent"
+            "organisation"
         )
 
 class LeadForm(forms.Form):
