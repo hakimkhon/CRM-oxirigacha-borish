@@ -24,7 +24,7 @@ class AgentCreateView(OrganiserAndLoginRequiredMixin, generic.CreateView):
         user = form.save(commit=False)
         user.is_organiser = False
         user.is_agent = True
-        user.set_password(f"{random.randint(0, 10000)}")
+        user.set_password(f"{random.randint(0, 1000)}")
         user.save()
         Agent.objects.create(
             user = user,
@@ -68,3 +68,6 @@ class AgentDeleteView(OrganiserAndLoginRequiredMixin, generic.DeleteView):
 
     def get_success_url(self):
         return reverse("agents:agent-list")
+
+
+        
