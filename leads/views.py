@@ -1,4 +1,5 @@
 from importlib.resources import contents
+from unicodedata import category
 from django.core.mail import send_mail
 from django.shortcuts import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -92,7 +93,7 @@ class AgentAssignView(OrganiserAndLoginRequiredMixin, FormView):
                 "request": self.request 
             })
         return kwargs
-        
+
     def get_success_url(self):
         return reverse("leads:lead-list")
     
@@ -102,6 +103,23 @@ class AgentAssignView(OrganiserAndLoginRequiredMixin, FormView):
         lead.agent = agent
         lead.save()
         return super(AgentAssignView, self).form_valid(form)
+
+class CategoryListView(LoginRequiredMixin,ListView):
+    template_name = "leads/categoriya.html"
+    context_object_name = "categories"
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_organiser:
+            queryset = Category.objects.filter(
+                organisation = user.userprofile
+            )
+        else:
+            queryset = Category.objects.filter(
+                organisation = user.agent.organisation
+            )
+        return queryset
+
 
 
 
