@@ -1,10 +1,13 @@
 from importlib.resources import contents
+from tkinter.tix import Tree
 from unicodedata import category
 from django.core.mail import send_mail
 from django.shortcuts import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.template import context
 from django.views.generic import *
+
+from leads.forms import LeadCategoryUpdateForm
 # TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import *
 from .forms import *
@@ -108,8 +111,26 @@ class CategoryListView(LoginRequiredMixin,ListView):
     template_name = "leads/categoriya.html"
     context_object_name = "categories"
 
+    def get_context_data(self, **kwargs):
+        context = super(CategoryListView, self).get_context_data(**kwargs)
+        user = self.request.user
+
+        if user.is_organiser:
+            queryset = Lead.objects.filter(
+                organisation = user.userprofile,
+            )
+        else:
+            queryset = Category.objects.filter(
+                organisation = user.agent.organisation
+            )
+        context.update({
+            "unassignet_category_soni": queryset.filter(category__isnull = True).count() 
+        })
+        return context
+
     def get_queryset(self):
         user = self.request.user
+
         if user.is_organiser:
             queryset = Category.objects.filter(
                 organisation = user.userprofile
@@ -120,6 +141,40 @@ class CategoryListView(LoginRequiredMixin,ListView):
             )
         return queryset
 
+class CategoryDetailView(LoginRequiredMixin, DeleteView):
+    template_name = "leads/category_detail.html"
+    context_object_name = "category"
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_organiser:
+            queryset = Category.objects.filter(
+                organisation = user.userprofile
+            )
+        else:
+            queryset = Category.objects.filter(
+                organisation = user.agent.organisation
+            )
+        return queryset    
+
+class LeadCategoryUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "leads/category_update_detail.html"
+    form_class = LeadCategoryUpdateForm
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_organiser:
+            queryset = Lead.objects.filter(
+                organisation = user.userprofile
+            )
+        else:
+            queryset = Lead.objects.filter(
+                organisation = user.agent.organisation
+            )
+        return queryset  
+    def get_success_url(self):
+        return reverse("leads:lead-list")
 
 
 

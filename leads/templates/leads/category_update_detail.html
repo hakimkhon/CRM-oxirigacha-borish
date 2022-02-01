@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 {% load tailwind_filters %}
-{% block title %}  Agent aniqlash {% endblock %}
+{% block title %} Mijoz Fani {% endblock %}
 
 {% block content %}
 
-    <a href="/leads/">Mijoz bo'limi</a>
-    <h1>Agentni kiriting</h1>
+    <a href="/leads/">Mijozlar bo'limi</a>
+
     <form method="post">
         <p>
         {% csrf_token %} 
+        <br>
         {{ form|crispy }}
-        <button type="submit">Jo'natish</button>
+        <button type="submit">Yangilash</button>
     </form>
+
 {% endblock %}
